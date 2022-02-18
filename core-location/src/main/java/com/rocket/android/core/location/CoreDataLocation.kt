@@ -4,9 +4,12 @@ import android.Manifest.permission.ACCESS_COARSE_LOCATION
 import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.location.Location
 import androidx.annotation.RequiresPermission
-import com.rocket.android.core.data.location.error.LocationFailure
+import com.rocket.android.core.location.error.LocationFailure
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import com.rocket.core.domain.functional.Either
+import com.rocket.core.domain.functional.Either.Left
+import com.rocket.core.domain.functional.Either.Right
 
 abstract class CoreDataLocation(
     private val permissions: Permissions

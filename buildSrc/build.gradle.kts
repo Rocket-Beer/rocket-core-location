@@ -9,6 +9,7 @@ repositories {
     maven("https://plugins.gradle.org/m2/")
     google()
     mavenCentral()
+    maven("https://developer.huawei.com/repo/")
 
     maven("https://maven.pkg.github.com/Rocket-Beer/*") {
         credentials {
@@ -47,4 +48,6 @@ dependencies {
     implementation(kotlin("gradle-plugin", version = "1.5.20"))
     implementation("rocket-gradle:rocket-plugin:1.0-dev02")
     implementation("de.mannodermaus.gradle.plugins:android-junit5:1.7.1.1")
+    implementation("com.huawei.agconnect:agcp:1.4.2.300")
+    implementation("com.google.gms:google-services:4.3.10")
 }

@@ -5,12 +5,10 @@ import android.location.Location
 import android.os.Looper
 import androidx.annotation.RequiresPermission
 import androidx.annotation.VisibleForTesting
-import arrow.core.Either
-import arrow.core.left
-import arrow.core.right
-import com.rocket.android.core.data.location.error.LocationFailure
+import com.rocket.android.core.location.error.LocationFailure
 import com.rocket.android.core.data.permissions.Permissions
 import com.huawei.hms.location.*
+import com.rocket.core.domain.functional.Either
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 
@@ -39,9 +37,9 @@ class LocationHMS(
             super.onLocationResult(result)
 
             if (result.lastLocation == null) {
-                _locationFlow.value = LocationFailure.NoData.left()
+                _locationFlow.value = Either.Left(LocationFailure.NoData)
             } else {
-                _locationFlow.value = result.lastLocation.right()
+                _locationFlow.value = Either.Right(result.lastLocation)
             }
         }
 
@@ -49,7 +47,7 @@ class LocationHMS(
             super.onLocationAvailability(availability)
 
             if (availability == null || !availability.isLocationAvailable)
-                _locationFlow.value = LocationFailure.NoData.left()
+                _locationFlow.value = Either.Left(LocationFailure.NoData)
         }
     }
 
@@ -74,17 +72,17 @@ class LocationHMS(
         locationClient.lastLocation
             .addOnCompleteListener { }
             .addOnFailureListener { exception ->
-                continuation.resume(value = LocationFailure.Error(msg = exception.message).left())
+                continuation.resume(value = Either.Left(LocationFailure.Error(msg = exception.message)))
             }
             .addOnSuccessListener { location ->
                 if (location == null) {
-                    continuation.resume(value = LocationFailure.NoData.left())
+                    continuation.resume(value = Either.Left(LocationFailure.NoData))
                 } else {
-                    continuation.resume(value = location.right())
+                    continuation.resume(value = Either.Right(location))
                 }
             }
             .addOnCanceledListener {
-                continuation.resume(value = LocationFailure.Cancelled.left())
+                continuation.resume(value = Either.Left(LocationFailure.Cancelled))
             }
     }
 }

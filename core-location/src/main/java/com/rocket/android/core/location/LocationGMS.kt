@@ -6,7 +6,7 @@ import android.os.Looper
 import androidx.annotation.RequiresPermission
 import androidx.annotation.VisibleForTesting
 import com.rocket.android.core.location.error.LocationFailure
-//import com.rocket.android.core.permissions.Permissions
+import com.rocket.android.core.permissions.Permissions
 import com.google.android.gms.location.*
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume

@@ -2,10 +2,10 @@ package com.rocket.android.core.location.di
 
 import android.content.Context
 import android.os.Looper
-import com.rocket.android.core.data.location.CoreDataLocation
-import com.rocket.android.core.data.location.LocationGMS
-import com.rocket.android.core.data.location.LocationHMS
-import com.rocket.android.core.data.permissions.Permissions
+import com.rocket.android.core.location.CoreDataLocation
+import com.rocket.android.core.location.LocationGMS
+import com.rocket.android.core.location.LocationHMS
+import com.rocket.android.core.permissions.Permissions
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.location.LocationServices

@@ -38,11 +38,9 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.5.20")
     implementation("com.google.android.gms:play-services-location:19.0.1")
 
-    api("com.rocket.android.core:crash-reporting-android:0.0-beta0")
     api("com.rocket.android.core:permissions:0.0.1-alpha02-SNAPSHOT")
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.1")
-    implementation("com.rocket.android.core:core-data-network:0.0-beta0")
     implementation("com.rocket.core:core-domain:0.0-beta0")
 
     implementation("org.jetbrains.kotlin:kotlin-test:1.5.20")

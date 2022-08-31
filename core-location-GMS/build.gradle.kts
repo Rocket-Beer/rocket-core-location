@@ -1,7 +1,6 @@
 plugins {
     id("com.android.library")
     kotlin("android")
-    // id("com.huawei.agconnect")
 }
 android {
     compileSdkVersion(apiLevel = 30)
@@ -24,11 +23,6 @@ android {
         }
     }
 
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
-    }
-
     kotlinOptions {
         jvmTarget = "1.8"
     }
@@ -40,10 +34,9 @@ java {
 }
 
 dependencies {
+
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.5.20")
-    implementation("com.huawei.hms:location:5.1.0.303")
     implementation("com.google.android.gms:play-services-location:19.0.1")
-    // implementation("com.huawei.hms:hwid:5.0.0.300")
 
     api("com.rocket.android.core:crash-reporting-android:0.0-beta0")
     api("com.rocket.android.core:permissions:0.0.1-alpha02-SNAPSHOT")
@@ -56,7 +49,6 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.5.1")
 
     testImplementation("junit:junit:4.13.2")
-    testImplementation("io.mockk:mockk-android:1.11.0")
 
     androidTestImplementation("androidx.test.ext:junit:1.1.2")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.3.0")

@@ -1,4 +1,4 @@
-package com.rocket.android.core.location
+package com.rocket.android.core.location.gms
 
 import android.Manifest
 import android.location.Location
@@ -11,7 +11,7 @@ import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.rocket.android.core.data.permissions.Permissions
-import com.rocket.android.core.location.error.LocationFailure
+import com.rocket.android.core.location.gms.error.LocationFailureGMS
 import com.rocket.core.domain.functional.Either
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
@@ -20,7 +20,7 @@ internal class LocationGMS(
     permissions: Permissions,
     private val locationClient: FusedLocationProviderClient,
     private val looper: Looper
-) : CoreDataLocation(permissions = permissions) {
+) : CoreDataLocationGMS(permissions = permissions) {
 
     private val locationRequest: LocationRequest by lazy {
         LocationRequest.create().apply {
@@ -42,16 +42,17 @@ internal class LocationGMS(
             super.onLocationResult(result)
 
             if (result.lastLocation == null) {
-                _locationFlow.value = Either.Left(LocationFailure.NoData)
+                _gmsLocation.value = Either.Left(LocationFailureGMS.NoData)
             } else {
-                _locationFlow.value = Either.Right(result.lastLocation)
+                _gmsLocation.value = Either.Right(result.lastLocation)
             }
         }
+
         override fun onLocationAvailability(availability: LocationAvailability) {
             super.onLocationAvailability(availability)
 
             if (!availability.isLocationAvailable) {
-                _locationFlow.value = Either.Left(LocationFailure.NoData)
+                _gmsLocation.value = Either.Left(LocationFailureGMS.NoData)
             }
         }
     }
@@ -73,26 +74,26 @@ internal class LocationGMS(
     }
 
     @RequiresPermission(anyOf = [Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION])
-    override suspend fun getLastLocation(): Either<LocationFailure, Location> =
+    override suspend fun getLastLocation(): Either<LocationFailureGMS, Location> =
         suspendCancellableCoroutine { continuation ->
             locationClient.lastLocation
                 .addOnCompleteListener { }
                 .addOnFailureListener { exception ->
                     continuation.resume(
                         value = Either.Left(
-                            LocationFailure.Error(msg = exception.message)
+                            LocationFailureGMS.Error(msg = exception.message)
                         )
                     )
                 }
                 .addOnSuccessListener { location ->
                     if (location == null) {
-                        continuation.resume(value = Either.Left(LocationFailure.NoData))
+                        continuation.resume(value = Either.Left(LocationFailureGMS.NoData))
                     } else {
                         continuation.resume(value = Either.Right(location))
                     }
                 }
                 .addOnCanceledListener {
-                    continuation.resume(value = Either.Left(LocationFailure.Cancelled))
+                    continuation.resume(value = Either.Left(LocationFailureGMS.Cancelled))
                 }
         }
 }

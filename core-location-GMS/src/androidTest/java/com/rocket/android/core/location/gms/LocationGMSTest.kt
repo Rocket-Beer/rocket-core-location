@@ -1,17 +1,15 @@
-package com.rocket.android.core.data.location
+package com.rocket.android.core.location.gms
 
 import android.location.Location
 import android.os.Looper
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import com.huawei.hmf.tasks.Tasks
-import com.huawei.hms.location.FusedLocationProviderClient
-import com.huawei.hms.location.HWLocation
-import com.huawei.hms.location.LocationResult
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationResult
+import com.google.android.gms.tasks.Tasks
 import com.karumi.dexter.Dexter
 import com.rocket.android.core.data.permissions.Permissions
-import com.rocket.android.core.location.LocationHMS
-import com.rocket.android.core.location.error.LocationFailure
+import com.rocket.android.core.location.gms.error.LocationFailureGMS
 import io.mockk.every
 import io.mockk.mockkClass
 import junit.framework.TestCase
@@ -21,14 +19,13 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-class LocationHMSTest : TestCase() {
+class LocationGMSTest : TestCase() {
 
     private val looper = Looper.getMainLooper()
-
     private val locationClient: FusedLocationProviderClient =
         mockkClass(FusedLocationProviderClient::class)
 
-    private val locationHMS = LocationHMS(
+    private val locationGMS = LocationGMS(
         permissions = Permissions(
             dexter = Dexter.withContext(
                 InstrumentationRegistry.getInstrumentation().targetContext
@@ -44,10 +41,8 @@ class LocationHMSTest : TestCase() {
         val myLongitude = -3.6905596
         val myAccuracy = 30f
 
-        every {
-            locationClient.lastLocation
-        } answers {
-            Tasks.fromResult(
+        every { locationClient.lastLocation } answers {
+            Tasks.forResult(
                 Location("mockProvider").apply {
                     latitude = myLatitude
                     longitude = myLongitude
@@ -56,7 +51,7 @@ class LocationHMSTest : TestCase() {
             )
         }
 
-        locationHMS.getLastLocation().fold(
+        locationGMS.getLastLocation().fold(
             {
                 fail()
             },
@@ -70,15 +65,13 @@ class LocationHMSTest : TestCase() {
 
     @Test
     fun givenNullFakeLocation_whenGetLastLocation_returnsNoData() = runBlocking {
-        every {
-            locationClient.lastLocation
-        } answers {
-            Tasks.fromResult(null)
+        every { locationClient.lastLocation } answers {
+            Tasks.forResult(null)
         }
 
-        locationHMS.getLastLocation().fold(
+        locationGMS.getLastLocation().fold(
             { failure ->
-                assertTrue(failure is LocationFailure.NoData)
+                assertTrue(failure is LocationFailureGMS.NoData)
             },
             {
                 fail()
@@ -88,15 +81,13 @@ class LocationHMSTest : TestCase() {
 
     @Test
     fun givenCanceledLocation_whenGetLastLocation_returnsCancelFailure() = runBlocking {
-        every {
-            locationClient.lastLocation
-        } answers {
-            Tasks.fromCanceled()
+        every { locationClient.lastLocation } answers {
+            Tasks.forCanceled()
         }
 
-        locationHMS.getLastLocation().fold(
+        locationGMS.getLastLocation().fold(
             { failure ->
-                assertTrue(failure is LocationFailure.Cancelled)
+                assertTrue(failure is LocationFailureGMS.Cancelled)
             },
             {
                 fail()
@@ -106,42 +97,13 @@ class LocationHMSTest : TestCase() {
 
     @Test
     fun givenFailureLocation_whenGetLastLocation_returnsFailure() = runBlocking {
-        every {
-            locationClient.lastLocation
-        } answers {
-            Tasks.fromException(Exception("Error"))
+        every { locationClient.lastLocation } answers {
+            Tasks.forException(Exception("Error"))
         }
 
-        locationHMS.getLastLocation().fold(
+        locationGMS.getLastLocation().fold(
             { failure ->
-                assertTrue(failure is LocationFailure.Error)
-            },
-            {
-                fail()
-            }
-        )
-    }
-
-    @Test
-    fun givenNotAvailableLocation_whenStartLocation_noDataFailureReceived() = runBlocking {
-        val callback = locationHMS.getLocationCallbackForTest()
-
-        every {
-            locationClient.requestLocationUpdates(
-                locationHMS.getLocationRequestForTest(),
-                callback,
-                looper
-            )
-        } answers {
-            callback.onLocationAvailability(null)
-            Tasks.fromResult(null)
-        }
-
-        locationHMS.startLocation()
-
-        locationHMS.locationFlow.first().fold(
-            { failure ->
-                assertTrue(failure is LocationFailure.NoData)
+                assertTrue(failure is LocationFailureGMS.Error)
             },
             {
                 fail()
@@ -151,24 +113,24 @@ class LocationHMSTest : TestCase() {
 
     @Test
     fun givenEmptyLocations_whenStartLocation_noDataFailureReceived() = runBlocking {
-        val callback = locationHMS.getLocationCallbackForTest()
+        val callback = locationGMS.getLocationCallbackForTest()
 
         every {
             locationClient.requestLocationUpdates(
-                locationHMS.getLocationRequestForTest(),
+                locationGMS.getLocationRequestForTest(),
                 callback,
                 looper
             )
         } answers {
             callback.onLocationResult(LocationResult.create(listOf()))
-            Tasks.fromResult(null)
+            Tasks.forResult(null)
         }
 
-        locationHMS.startLocation()
+        locationGMS.startLocation()
 
-        locationHMS.locationFlow.first().fold(
+        locationGMS.locationFlow.first().fold(
             { failure ->
-                assertTrue(failure is LocationFailure.NoData)
+                assertTrue(failure is LocationFailureGMS.NoData)
             },
             {
                 fail()
@@ -178,33 +140,23 @@ class LocationHMSTest : TestCase() {
 
     @Test
     fun givenLocation_whenStartLocation_locationIsReceived() = runBlocking {
-        val callback = locationHMS.getLocationCallbackForTest()
+        val callback = locationGMS.getLocationCallbackForTest()
         val provider = "mockLocation"
 
         every {
             locationClient.requestLocationUpdates(
-                locationHMS.getLocationRequestForTest(),
+                locationGMS.getLocationRequestForTest(),
                 callback,
                 looper
             )
         } answers {
-            callback.onLocationResult(
-                LocationResult.create(
-                    listOf(
-                        HWLocation().apply {
-                            setProvider(
-                                provider
-                            )
-                        }
-                    )
-                )
-            )
-            Tasks.fromResult(null)
+            callback.onLocationResult(LocationResult.create(listOf(Location(provider))))
+            Tasks.forResult(null)
         }
 
-        locationHMS.startLocation()
+        locationGMS.startLocation()
 
-        locationHMS.locationFlow.first().fold(
+        locationGMS.locationFlow.first().fold(
             {
                 fail()
             },
@@ -217,13 +169,13 @@ class LocationHMSTest : TestCase() {
     @Suppress("EXPERIMENTAL_API_USAGE")
     @Test
     fun givenLocations_whenStartLocation_latestLocationIsReceived() = runBlocking {
-        val callback = locationHMS.getLocationCallbackForTest()
+        val callback = locationGMS.getLocationCallbackForTest()
         val provider1 = "mockLocation1"
         val provider2 = "mockLocation2"
 
         every {
             locationClient.requestLocationUpdates(
-                locationHMS.getLocationRequestForTest(),
+                locationGMS.getLocationRequestForTest(),
                 callback,
                 looper
             )
@@ -231,17 +183,17 @@ class LocationHMSTest : TestCase() {
             callback.onLocationResult(
                 LocationResult.create(
                     listOf(
-                        HWLocation().apply { provider = provider1 },
-                        HWLocation().apply { provider = provider2 }
+                        Location(provider1),
+                        Location(provider2)
                     )
                 )
             )
-            Tasks.fromResult(null)
+            Tasks.forResult(null)
         }
 
-        locationHMS.startLocation()
+        locationGMS.startLocation()
 
-        locationHMS.locationFlow.value.fold(
+        locationGMS.locationFlow.value.fold(
             {
                 fail()
             },

@@ -1,4 +1,4 @@
-package com.rocket.android.core.location
+package com.rocket.android.core.location.gms
 
 import android.Manifest.permission.ACCESS_COARSE_LOCATION
 import android.Manifest.permission.ACCESS_FINE_LOCATION
@@ -6,12 +6,12 @@ import android.location.Location
 import androidx.annotation.RequiresPermission
 import com.rocket.android.core.data.permissions.PermissionResponse
 import com.rocket.android.core.data.permissions.Permissions
-import com.rocket.android.core.location.error.LocationFailure
+import com.rocket.android.core.location.gms.error.LocationFailureGMS
 import com.rocket.core.domain.functional.Either
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
-abstract class CoreDataLocation(
+abstract class CoreDataLocationGMS(
     private val permissions: Permissions
 ) {
 
@@ -25,12 +25,12 @@ abstract class CoreDataLocation(
     protected var locationPriority: Priority = Priority.PRIORITY_HIGH_ACCURACY
 
     @Suppress("PropertyName", "EXPERIMENTAL_API_USAGE")
-    protected val _locationFlow =
-        MutableStateFlow<Either<LocationFailure, Location>>(value = Either.Left(LocationFailure.NoData))
+    protected val _gmsLocation =
+        MutableStateFlow<Either<LocationFailureGMS, Location>>(value = Either.Left(LocationFailureGMS.NoData))
 
     @Suppress("EXPERIMENTAL_API_USAGE")
-    val locationFlow: StateFlow<Either<LocationFailure, Location>>
-        get() = _locationFlow
+    val gmsLocation: StateFlow<Either<LocationFailureGMS, Location>>
+        get() = _gmsLocation
 
     @Suppress("unused")
     fun setConfiguration(
@@ -43,7 +43,8 @@ abstract class CoreDataLocation(
         locationPriority = priority
     }
 
-    suspend fun checkPermissions(): Either<PermissionResponse.MultiplePermissionDenied, PermissionResponse.PermissionGranted> =
+    suspend fun checkPermissions():
+        Either<PermissionResponse.MultiplePermissionDenied, PermissionResponse.PermissionGranted> =
         permissions.checkMultiplePermissions(
             permissions = listOf(
                 ACCESS_COARSE_LOCATION,
@@ -57,7 +58,7 @@ abstract class CoreDataLocation(
     abstract fun stopLocation()
 
     @RequiresPermission(anyOf = [ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION])
-    abstract suspend fun getLastLocation(): Either<LocationFailure, Location>
+    abstract suspend fun getLastLocation(): Either<LocationFailureGMS, Location>
 
     companion object {
         private const val INTERVAL_MILLISECONDS = 60000L

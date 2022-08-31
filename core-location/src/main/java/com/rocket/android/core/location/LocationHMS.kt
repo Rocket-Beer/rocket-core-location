@@ -5,9 +5,13 @@ import android.location.Location
 import android.os.Looper
 import androidx.annotation.RequiresPermission
 import androidx.annotation.VisibleForTesting
-import com.rocket.android.core.location.error.LocationFailure
+import com.huawei.hms.location.FusedLocationProviderClient
+import com.huawei.hms.location.LocationAvailability
+import com.huawei.hms.location.LocationCallback
+import com.huawei.hms.location.LocationRequest
+import com.huawei.hms.location.LocationResult
 import com.rocket.android.core.data.permissions.Permissions
-import com.huawei.hms.location.*
+import com.rocket.android.core.location.error.LocationFailure
 import com.rocket.core.domain.functional.Either
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume

@@ -1,4 +1,4 @@
-package com.rocket.android.core.data.location
+package com.rocket.android.core.location.gms
 
 import android.Manifest
 import android.os.Looper
@@ -8,8 +8,6 @@ import com.karumi.dexter.listener.PermissionDeniedResponse
 import com.karumi.dexter.listener.PermissionRequest
 import com.rocket.android.core.data.permissions.PermissionResponse
 import com.rocket.android.core.data.permissions.Permissions
-import com.rocket.android.core.location.CoreDataLocation
-import com.rocket.android.core.location.LocationGMS
 import com.rocket.core.domain.functional.Either
 import io.mockk.coEvery
 import io.mockk.mockkClass
@@ -25,7 +23,7 @@ class CoreLocationTest : TestCase() {
     private val locationClient = mockkClass(FusedLocationProviderClient::class)
     private val looper: Looper = Looper.getMainLooper()
 
-    private val locationHandler: CoreDataLocation =
+    private val locationHandler: CoreDataLocationGMS =
         LocationGMS(permissions = permissions, locationClient = locationClient, looper = looper)
 
     @Test

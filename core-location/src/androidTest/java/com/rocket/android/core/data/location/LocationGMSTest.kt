@@ -4,12 +4,13 @@ import android.location.Location
 import android.os.Looper
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import com.rocket.android.core.data.location.error.LocationFailure
-import com.rocket.android.core.data.permissions.Permissions
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.tasks.Tasks
 import com.karumi.dexter.Dexter
+import com.rocket.android.core.data.permissions.Permissions
+import com.rocket.android.core.location.LocationGMS
+import com.rocket.android.core.location.error.LocationFailure
 import io.mockk.every
 import io.mockk.mockkClass
 import junit.framework.TestCase
@@ -41,12 +42,14 @@ class LocationGMSTest : TestCase() {
         val myLongitude = -3.6905596
         val myAccuracy = 30f
 
-        every { locationClient.lastLocation } answers  {
-            Tasks.forResult(Location("mockProvider").apply {
-                latitude = myLatitude
-                longitude = myLongitude
-                accuracy = myAccuracy
-            })
+        every { locationClient.lastLocation } answers {
+            Tasks.forResult(
+                Location("mockProvider").apply {
+                    latitude = myLatitude
+                    longitude = myLongitude
+                    accuracy = myAccuracy
+                }
+            )
         }
 
         locationGMS.getLastLocation().fold(
@@ -102,33 +105,6 @@ class LocationGMSTest : TestCase() {
         locationGMS.getLastLocation().fold(
             { failure ->
                 assertTrue(failure is LocationFailure.Error)
-            },
-            {
-                fail()
-            }
-        )
-    }
-
-    @Test
-    fun givenNotAvailableLocation_whenStartLocation_noDataFailureReceived() = runBlocking {
-        val callback = locationGMS.getLocationCallbackForTest()
-
-        every {
-            locationClient.requestLocationUpdates(
-                locationGMS.getLocationRequestForTest(),
-                callback,
-                looper
-            )
-        } answers {
-            callback.onLocationAvailability(null)
-            Tasks.forResult(null)
-        }
-
-        locationGMS.startLocation()
-
-        locationGMS.locationFlow.first().fold(
-            { failure ->
-                assertTrue(failure is LocationFailure.NoData)
             },
             {
                 fail()
@@ -227,5 +203,4 @@ class LocationGMSTest : TestCase() {
             }
         )
     }
-
 }

@@ -2,20 +2,22 @@ package com.rocket.android.core.location.di
 
 import android.content.Context
 import android.os.Looper
-import com.rocket.android.core.location.CoreDataLocation
-import com.rocket.android.core.location.LocationGMS
-import com.rocket.android.core.location.LocationHMS
-import com.rocket.android.core.permissions.Permissions
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.location.LocationServices
 import com.huawei.hms.api.HuaweiApiAvailability
+import com.rocket.android.core.data.permissions.Permissions
+import com.rocket.android.core.data.permissions.di.CoreDataProvider
+import com.rocket.android.core.location.CoreDataLocation
+import com.rocket.android.core.location.LocationGMS
+import com.rocket.android.core.location.LocationHMS
 
 @Suppress("unused")
-class CoreDataLocationProvider private constructor(
+class CoreDataLocationProvider(
     private val context: Context,
-    private val permissions: Permissions,
-    private val looper: Looper
+    private val permissions: Permissions = CoreDataProvider(context = context).provideCorePermissions,
+    private val looper: Looper = Looper.getMainLooper()
+
 ) {
 
     val provideCoreLocation: CoreDataLocation by lazy {
@@ -71,7 +73,5 @@ class CoreDataLocationProvider private constructor(
                     _instance
                 }
             }
-
     }
-
 }

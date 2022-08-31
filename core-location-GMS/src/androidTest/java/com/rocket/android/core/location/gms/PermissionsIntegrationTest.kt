@@ -1,4 +1,4 @@
-package com.rocket.android.core.data.location
+package com.rocket.android.core.location.gms
 
 import android.Manifest
 import androidx.test.ext.junit.runners.AndroidJUnit4

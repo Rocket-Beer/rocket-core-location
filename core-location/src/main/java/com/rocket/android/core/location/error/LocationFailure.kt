@@ -1,6 +1,6 @@
 package com.rocket.android.core.location.error
 
-import com.rocket.android.core.domain.error.Failure
+import com.rocket.core.domain.error.Failure
 
 sealed class LocationFailure(message: String? = null) : Failure.FeatureFailure(message) {
     object Cancelled : LocationFailure()
